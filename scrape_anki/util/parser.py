@@ -2,7 +2,7 @@ from typing import cast
 from urllib.parse import urljoin
 
 import requests
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 from bs4.element import AttributeValueList
 
 
@@ -47,3 +47,13 @@ def fetch_css(soup: BeautifulSoup, base_url: str) -> str:
             css_content += css_response.text
 
     return css_content
+
+
+def restore_full_urls(tag: Tag, base_url: str) -> Tag:
+    for a in tag.find_all("a"):
+        if href := a.get("href"):
+            a["href"] = urljoin(base_url, cast(str, href))
+    for img in tag.find_all("img"):
+        if src := img.get("src"):
+            img["src"] = urljoin(base_url, cast(str, src))
+    return tag

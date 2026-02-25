@@ -3,7 +3,7 @@ from typing import Iterator, cast
 from urllib.parse import urljoin
 
 from ..model.spec import CardSpec
-from ..util.parser import fetch_css, fetch_html_soup
+from ..util.parser import fetch_css, fetch_html_soup, restore_full_urls
 
 
 class ImidasScraper:
@@ -57,11 +57,7 @@ class ImidasScraper:
             # remove title bar
             if h2 := back.find("h2"):
                 h2.decompose()
-
-            # construct full urls
-            for a in back.find_all("a"):
-                if href := a.get("href"):
-                    a["href"] = urljoin(url, cast(str, href))
+            restore_full_urls(back, url)
 
             # create a copy of back
             front = copy(back)
