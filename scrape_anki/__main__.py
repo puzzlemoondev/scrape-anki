@@ -12,9 +12,12 @@ def generate_deck(config: Config, output_path: Path):
 
     deck = config.deck
     model = config.model
+    tags = config.tags
     if config.fetch_css:
         model = replace(model, css=scraper.fetch_css())
-    DeckBuilder().init_deck(deck).init_model(model).add_cards(cards).output(output_path)
+    DeckBuilder().init_deck(deck).init_model(model).add_cards(cards, tags).output(
+        output_path
+    )
 
 
 if __name__ == "__main__":

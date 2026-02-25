@@ -27,7 +27,7 @@ class DeckBuilder:
         )
         return self
 
-    def add_cards(self, cards: Iterable[CardSpec]) -> Self:
+    def add_cards(self, cards: Iterable[CardSpec], tags: list[str] | None) -> Self:
         if not self.deck:
             raise ValueError("Deck not initialized")
         if not self.model:
@@ -35,10 +35,7 @@ class DeckBuilder:
 
         for card in cards:
             self.deck.add_note(
-                Note(
-                    model=self.model,
-                    fields=[card.front, card.back],
-                )
+                Note(model=self.model, fields=[card.front, card.back], tags=tags)
             )
         return self
 

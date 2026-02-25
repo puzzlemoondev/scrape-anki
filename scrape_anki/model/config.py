@@ -10,6 +10,7 @@ class Config:
     url: str
     deck: DeckSpec
     model: ModelSpec
+    tags: list[str] | None
     fetch_css: bool
     scraper_factory: Callable[[Self], IScraper]
 

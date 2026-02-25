@@ -36,6 +36,7 @@ FOUR_CHARS_CONFIG = Config(
     model=_create_imidas_model_spec(1556473911, "スピーチに役立つ四字熟語辞典Note"),
     scraper_factory=lambda self: ImidasScraper(self.url),
     fetch_css=True,
+    tags=["四字熟語"],
 )
 
 
@@ -49,6 +50,7 @@ IDIOM_CONFIG = Config(
     model=_create_imidas_model_spec(1982922590, "ルーツでなるほど慣用句辞典Note"),
     scraper_factory=lambda self: ImidasScraper(self.url),
     fetch_css=True,
+    tags=["慣用句"],
 )
 
 PROVERB_CONFIG = Config(
@@ -61,4 +63,5 @@ PROVERB_CONFIG = Config(
     model=_create_imidas_model_spec(1480528787, "会話で使えることわざ辞典Note"),
     scraper_factory=lambda self: ImidasScraper(self.url),
     fetch_css=True,
+    tags=["ことわざ"],
 )
