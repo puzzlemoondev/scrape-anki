@@ -24,6 +24,7 @@ class DeckBuilder:
             fields=model.fields,
             templates=model.templates,
             css=model.css,
+            sort_field_index=model.sort_field_index,
         )
         return self
 
@@ -34,8 +35,16 @@ class DeckBuilder:
             raise ValueError("Model not initialized")
 
         for card in cards:
+            fields = [card.front, card.back]
+            if card.sort is not None:
+                fields.append(card.sort)
             self.deck.add_note(
-                Note(model=self.model, fields=[card.front, card.back], tags=tags)
+                Note(
+                    model=self.model,
+                    fields=fields,
+                    sort_field=card.sort,
+                    tags=tags,
+                )
             )
         return self
 
