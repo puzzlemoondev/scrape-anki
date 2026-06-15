@@ -5,6 +5,7 @@ Build Anki `.apkg` decks from scraper-backed sources.
 ## Features
 
 - Scrape Imidas dictionary entries into front/back Anki cards.
+- Scrape NDL Koyomi tables into Japanese calendar reference decks.
 - Convert TMW frequency JSON data into Anki decks.
 - Read TMW data from either an extracted directory or the original frequency zip.
 - Exclude Owner-level TMW place names and surnames by default.
@@ -26,6 +27,9 @@ Build Anki `.apkg` decks from scraper-backed sources.
   - `eternal-idol`
   - `immortal-idol`
   - `owner`
+- NDL 日本の暦
+  - `kanshi`
+  - `wafu-getsu-mei`
 
 ## Requirements
 
@@ -33,6 +37,7 @@ Build Anki `.apkg` decks from scraper-backed sources.
 - Python 3.14+
 - uv 0.11.21+
 - Network access for Imidas scraping
+- Network access for NDL Koyomi scraping
 - Network access for TMW Owner exclusions only when local exclusion JSON files are not provided
 
 This repo uses asdf-managed tooling. With asdf installed and initialized in your
@@ -130,6 +135,21 @@ uv run python -m scrape_anki tmw owner \
   --no-exclude-kanjiquizbot
 ```
 
+### NDL Koyomi
+
+Generate all NDL Koyomi decks:
+
+```bash
+uv run python -m scrape_anki koyomi all --output-dir .
+```
+
+Generate one NDL Koyomi deck:
+
+```bash
+uv run python -m scrape_anki koyomi kanshi --output kanshi.apkg
+uv run python -m scrape_anki koyomi wafu-getsu-mei --output wafu_getsu_mei.apkg
+```
+
 ## Python API
 
 The main program path is still `generate_deck(config, output_path)`.
@@ -164,6 +184,7 @@ uv run python -m compileall scrape_anki tests
 ## Notes
 
 - Imidas scraping may take a while depending on the site and your connection.
+- NDL Koyomi decks are generated from the current NDL table markup.
 - TMW non-Owner decks are disk-only once the frequency zip or directory exists locally.
 - TMW Owner decks use network only for exclusion fallback JSONs.
 - Please respect source-site terms of service and robots policies.

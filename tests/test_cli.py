@@ -3,10 +3,11 @@ import io
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import call, patch
 
 from scrape_anki.__main__ import main
 from scrape_anki.config.imidas import FOUR_CHARS_CONFIG
+from scrape_anki.config.koyomi import KANSHI_CONFIG, WAFU_GETSU_MEI_CONFIG
 
 
 class CliTest(unittest.TestCase):
@@ -17,6 +18,7 @@ class CliTest(unittest.TestCase):
 
         self.assertEqual(code, 0)
         self.assertIn("imidas", stdout.getvalue())
+        self.assertIn("koyomi", stdout.getvalue())
         self.assertIn("tmw", stdout.getvalue())
 
     def test_imidas_deck_routes_to_generate_deck(self):
@@ -30,6 +32,41 @@ class CliTest(unittest.TestCase):
         config, actual_output = generate_deck.call_args.args
         self.assertIs(config, FOUR_CHARS_CONFIG)
         self.assertEqual(actual_output, output)
+
+    def test_koyomi_kanshi_routes_to_generate_deck(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            output = Path(tmp) / "kanshi.apkg"
+            with patch("scrape_anki.__main__.generate_deck") as generate_deck:
+                code = main(["koyomi", "kanshi", "--output", str(output)])
+
+        self.assertEqual(code, 0)
+        generate_deck.assert_called_once_with(KANSHI_CONFIG, output)
+
+    def test_koyomi_wafu_getsu_mei_routes_to_generate_deck(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            output = Path(tmp) / "wafu_getsu_mei.apkg"
+            with patch("scrape_anki.__main__.generate_deck") as generate_deck:
+                code = main(
+                    ["koyomi", "wafu-getsu-mei", "--output", str(output)]
+                )
+
+        self.assertEqual(code, 0)
+        generate_deck.assert_called_once_with(WAFU_GETSU_MEI_CONFIG, output)
+
+    def test_koyomi_all_routes_all_decks_to_output_dir(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            output_dir = Path(tmp) / "decks"
+            with patch("scrape_anki.__main__.generate_deck") as generate_deck:
+                code = main(["koyomi", "all", "--output-dir", str(output_dir)])
+
+        self.assertEqual(code, 0)
+        self.assertEqual(
+            generate_deck.call_args_list,
+            [
+                call(KANSHI_CONFIG, output_dir / "kanshi.apkg"),
+                call(WAFU_GETSU_MEI_CONFIG, output_dir / "wafu_getsu_mei.apkg"),
+            ],
+        )
 
     def test_tmw_owner_routes_to_generate_deck_with_generic_exclusion_flags(self):
         with tempfile.TemporaryDirectory() as tmp:

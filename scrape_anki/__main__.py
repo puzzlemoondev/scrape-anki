@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Sequence
 
 from .config.imidas import FOUR_CHARS_CONFIG, IDIOM_CONFIG, PROVERB_CONFIG
+from .config.koyomi import KANSHI_CONFIG, WAFU_GETSU_MEI_CONFIG
 from .config.tmw import TMW_LEVELS_BY_SLUG, create_tmw_config
 from .deck.builder import DeckBuilder
 from .model.config import Config
@@ -13,6 +14,11 @@ IMIDAS_DECKS = {
     "four-chars": (FOUR_CHARS_CONFIG, "four_chars.apkg"),
     "idiom": (IDIOM_CONFIG, "idiom.apkg"),
     "proverb": (PROVERB_CONFIG, "proverb.apkg"),
+}
+
+KOYOMI_DECKS = {
+    "kanshi": (KANSHI_CONFIG, "kanshi.apkg"),
+    "wafu-getsu-mei": (WAFU_GETSU_MEI_CONFIG, "wafu_getsu_mei.apkg"),
 }
 
 
@@ -64,6 +70,34 @@ def build_parser() -> argparse.ArgumentParser:
             help="Output .apkg path",
         )
         deck_parser.set_defaults(func=_run_imidas_deck, imidas_deck=deck_slug)
+
+    koyomi_parser = subparsers.add_parser("koyomi", help="Generate NDL Koyomi decks")
+    koyomi_subparsers = koyomi_parser.add_subparsers(dest="deck")
+
+    koyomi_all_parser = koyomi_subparsers.add_parser(
+        "all",
+        help="Generate all NDL Koyomi decks",
+    )
+    koyomi_all_parser.add_argument(
+        "--output-dir",
+        type=Path,
+        default=Path("."),
+        help="Directory to write NDL Koyomi .apkg files into",
+    )
+    koyomi_all_parser.set_defaults(func=_run_koyomi_all)
+
+    for deck_slug, (_, default_output) in KOYOMI_DECKS.items():
+        deck_parser = koyomi_subparsers.add_parser(
+            deck_slug,
+            help=f"Generate the {deck_slug} NDL Koyomi deck",
+        )
+        deck_parser.add_argument(
+            "--output",
+            type=Path,
+            default=Path(default_output),
+            help="Output .apkg path",
+        )
+        deck_parser.set_defaults(func=_run_koyomi_deck, koyomi_deck=deck_slug)
 
     tmw_parser = subparsers.add_parser("tmw", help="Generate TMW frequency decks")
     tmw_subparsers = tmw_parser.add_subparsers(dest="level")
@@ -130,6 +164,17 @@ def _run_imidas_all(args: argparse.Namespace) -> None:
 
 def _run_imidas_deck(args: argparse.Namespace) -> None:
     config, _ = IMIDAS_DECKS[args.imidas_deck]
+    generate_deck(config, args.output)
+
+
+def _run_koyomi_all(args: argparse.Namespace) -> None:
+    args.output_dir.mkdir(parents=True, exist_ok=True)
+    for config, default_output in KOYOMI_DECKS.values():
+        generate_deck(config, args.output_dir / default_output)
+
+
+def _run_koyomi_deck(args: argparse.Namespace) -> None:
+    config, _ = KOYOMI_DECKS[args.koyomi_deck]
     generate_deck(config, args.output)
 
 

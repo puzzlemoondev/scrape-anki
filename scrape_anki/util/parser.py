@@ -1,8 +1,9 @@
+import warnings
 from typing import cast
 from urllib.parse import urljoin
 
 import requests
-from bs4 import BeautifulSoup, Tag
+from bs4 import BeautifulSoup, Tag, XMLParsedAsHTMLWarning
 from bs4.element import AttributeValueList
 
 
@@ -21,8 +22,11 @@ def fetch_html(url: str) -> str:
 
 
 def fetch_html_soup(url: str) -> BeautifulSoup:
-    html = fetch_html(url)
-    return BeautifulSoup(html, "lxml")
+    response = requests.get(url)
+    response.raise_for_status()
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning)
+        return BeautifulSoup(response.content, "lxml")
 
 
 def fetch_css(soup: BeautifulSoup, base_url: str) -> str:
